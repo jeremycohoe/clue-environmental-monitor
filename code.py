@@ -34,6 +34,10 @@ from adafruit_display_text import label
 # Offset calculated by calibrate_interactive.py
 TEMP_OFFSET = -3.4  # Exact calibration from sensor readings
 
+# Humidity calibration offset (in percentage)
+# Calibrated: 2025-11-01 - Reference 43.3%, CLUE reading 38.1%
+HUMIDITY_OFFSET = 5.2  # Humidity correction
+
 # Update interval in seconds
 UPDATE_INTERVAL = 2  # Display updates every 2 seconds
 
@@ -97,6 +101,13 @@ def get_calibrated_temperature():
     raw_temp = clue.temperature
     calibrated_temp = raw_temp + TEMP_OFFSET
     return calibrated_temp
+
+def get_calibrated_humidity():
+    """Get humidity with calibration offset applied."""
+    raw_humidity = clue.humidity
+    calibrated_humidity = raw_humidity + HUMIDITY_OFFSET
+    # Clamp to valid range 0-100%
+    return max(0, min(100, calibrated_humidity))
 
 def get_temp_color(temp):
     """Return color based on temperature comfort level."""
@@ -315,10 +326,15 @@ def setup_stats_display():
                               x=5, y=130, scale=1)
     stats_group.append(legend_label)
 
-    # Calibration info
-    cal_label = label.Label(terminalio.FONT, text=f"Offset: {TEMP_OFFSET:+.1f}C",
-                           color=0x888888, x=5, y=160, scale=1)
-    stats_group.append(cal_label)
+    # Calibration info - temperature
+    cal_temp_label = label.Label(terminalio.FONT, text=f"T: {TEMP_OFFSET:+.1f}C",
+                           color=0x888888, x=5, y=155, scale=1)
+    stats_group.append(cal_temp_label)
+
+    # Calibration info - humidity
+    cal_hum_label = label.Label(terminalio.FONT, text=f"RH: {HUMIDITY_OFFSET:+.1f}%",
+                           color=0x888888, x=90, y=155, scale=1)
+    stats_group.append(cal_hum_label)
 
     # Help text
     help_label = label.Label(terminalio.FONT, text="A:Mode B:C/F", color=0x666666,
@@ -361,6 +377,7 @@ print("=" * 50)
 print("Adafruit CLUE - Calibrated Environmental Monitor")
 print("=" * 50)
 print(f"Temperature offset: {TEMP_OFFSET:+.1f}C")
+print(f"Humidity offset: {HUMIDITY_OFFSET:+.1f}%")
 print(f"Update interval: {UPDATE_INTERVAL}s")
 print(f"Log interval: {LOG_INTERVAL}s")
 print(f"History size: {HISTORY_SIZE} readings")
@@ -385,7 +402,7 @@ while True:
 
     # Read sensors
     calibrated_temp = get_calibrated_temperature()
-    humidity = clue.humidity
+    humidity = get_calibrated_humidity()
     pressure = clue.pressure
     altitude = clue.altitude
 
