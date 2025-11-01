@@ -1,0 +1,3 @@
+Adafruit CircuitPython 9.2.4 on 2025-01-28; Adafruit CLUE nRF52840 Express with nRF52840
+Board ID:clue_nrf52840_express
+UID:B6060B5384F2F8C4

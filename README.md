@@ -1,0 +1,240 @@
+# Adafruit CLUE Environmental Monitor
+
+A comprehensive environmental monitoring system for the Adafruit CLUE nRF52840 Express with calibrated temperature sensing, historical trending, and multiple display modes.
+
+![CLUE Badge](https://img.shields.io/badge/Adafruit-CLUE-blueviolet)
+![CircuitPython](https://img.shields.io/badge/CircuitPython-9.2.4-blue)
+![License](https://img.shields.io/badge/license-MIT-green)
+
+## 🌟 Features
+
+- **📊 Real-time Environmental Monitoring**
+  - Temperature (with calibration for accuracy)
+  - Relative Humidity
+  - Barometric Pressure
+  - Altitude calculation
+
+- **📈 Historical Trending**
+  - 2-hour data history (120 data points)
+  - Rising/falling trend detection
+  - Statistical analysis (min/avg/max)
+
+- **🎨 Three Display Modes**
+  - **Main View**: Current readings with color-coded comfort zones
+  - **Trends View**: Historical trend analysis
+  - **Statistics View**: Min/average/max over 2 hours
+
+- **🎮 Interactive Controls**
+  - Button A: Cycle through display modes
+  - Button B: Toggle Celsius/Fahrenheit
+
+- **🌈 Visual Feedback**
+  - Color-coded temperature (blue=cold, green=comfortable, orange=hot)
+  - Color-coded humidity (orange=dry, cyan=comfortable, blue=humid)
+  - NeoPixel LED status indicator
+
+- **📝 Data Logging**
+  - Serial console output every 60 seconds
+  - CSV-compatible format for analysis
+
+## 📸 Screenshots
+
+### Main Display
+```
+┌────────────────────────────────┐
+│     CLUE Monitor               │
+│                                │
+│  Temp: 22.5°C    [Green]       │
+│  RH: 45.2%       [Cyan]        │
+│  P: 1013 hPa                   │
+│  Alt: 125 m                    │
+│                                │
+│  Uptime: 15m 30s               │
+│  A:Mode B:C/F                  │
+└────────────────────────────────┘
+```
+
+## 🚀 Quick Start
+
+### Hardware Required
+- [Adafruit CLUE nRF52840 Express](https://www.adafruit.com/product/4500)
+- USB-C cable
+- Optional: Reference thermometer for calibration
+
+### Installation
+
+1. **Ensure CircuitPython is installed** on your CLUE (version 9.2.4 or later)
+   - Download from [circuitpython.org](https://circuitpython.org/board/clue_nrf52840_express/)
+
+2. **Clone this repository**
+   ```bash
+   git clone https://github.com/jeremycohoe/clue-environmental-monitor.git
+   cd clue-environmental-monitor
+   ```
+
+3. **Copy to CLUE**
+   ```bash
+   # Mount your CLUE (appears as CIRCUITPY drive)
+   sudo mount /dev/sdX1 /mnt/clue
+
+   # Copy the main program
+   sudo cp code.py /mnt/clue/
+   sudo sync
+   ```
+
+4. **Done!** The CLUE will automatically restart and run the monitor
+
+### Usage
+
+#### Button Controls
+- **Button A** (left): Cycle through Main → Trends → Statistics
+- **Button B** (right): Toggle between °C and °F
+
+#### Display Modes
+1. **Main View**: Real-time sensor readings
+2. **Trends View**: Historical trend analysis
+3. **Statistics View**: Min/Avg/Max values
+
+#### Serial Console
+Connect to view detailed logging:
+```bash
+screen /dev/ttyACM0 115200
+# or
+picocom /dev/ttyACM0 -b 115200
+```
+
+## 🎯 Temperature Calibration
+
+The CLUE's temperature sensor reads 0.5-1.5°C higher than ambient due to self-heating. Follow these steps to calibrate:
+
+1. Let CLUE run for 10-15 minutes to stabilize
+2. Compare with a reference thermometer
+3. Calculate offset: `Reference_Temp - CLUE_Temp`
+4. Edit `code.py` line ~30:
+   ```python
+   TEMP_OFFSET = -1.0  # Replace with your calculated offset
+   ```
+
+See [CALIBRATION_GUIDE.md](CALIBRATION_GUIDE.md) for detailed instructions.
+
+## 📚 Documentation
+
+- **[README.md](README.md)** - Complete hardware capabilities and sensor specifications
+- **[QUICK_START.md](QUICK_START.md)** - Quick reference and common tasks
+- **[CALIBRATION_GUIDE.md](CALIBRATION_GUIDE.md)** - Detailed temperature calibration
+- **[DISPLAY_GUIDE.md](DISPLAY_GUIDE.md)** - Visual guide to all display modes
+- **[PROJECT_SUMMARY.md](PROJECT_SUMMARY.md)** - Project overview and file structure
+- **[REFERENCE_CARD.txt](REFERENCE_CARD.txt)** - Quick reference card
+
+## 🔧 Configuration
+
+Edit `code.py` to customize:
+
+```python
+# Temperature calibration
+TEMP_OFFSET = -1.0          # Your calibration offset (°C)
+
+# Update intervals
+UPDATE_INTERVAL = 2         # Display refresh (seconds)
+LOG_INTERVAL = 60           # Data logging (seconds)
+
+# History
+HISTORY_SIZE = 120          # Data points (2 hours at 1/min)
+
+# Comfort zones
+TEMP_MIN_COMFORT = 20.0     # °C
+TEMP_MAX_COMFORT = 24.0     # °C
+HUMIDITY_MIN_COMFORT = 30.0 # %
+HUMIDITY_MAX_COMFORT = 60.0 # %
+```
+
+## 📊 Sensors
+
+| Sensor | Measurement | Accuracy | Notes |
+|--------|------------|----------|-------|
+| SHT31-D | Temperature | ±0.2°C | Apply calibration offset |
+| SHT31-D | Humidity | ±2% RH | Generally accurate |
+| BMP280 | Pressure | ±1 hPa | For weather trends |
+| BMP280 | Altitude | ±1 m | Calculated from pressure |
+
+Additional sensors available but not used in this project:
+- LSM6DS33 (accelerometer & gyroscope)
+- LIS3MDL (magnetometer)
+- APDS9960 (proximity, light, color, gesture)
+- PDM microphone
+
+## 📁 Project Structure
+
+```
+clue-environmental-monitor/
+├── code.py                    # Main program (upload to CLUE)
+├── calibrate_temperature.py   # Interactive calibration helper
+├── examples/                  # Example programs
+│   ├── sensor_test.py        # Test all sensors
+│   ├── data_logger.py        # CSV data logging
+│   └── weather_station.py    # Weather forecasting
+├── backup_20251101_210948/   # Original files backup
+│   ├── code.py
+│   ├── temp.py
+│   └── boot_out.txt
+├── README.md                  # This file (GitHub main page)
+├── CALIBRATION_GUIDE.md      # Detailed calibration
+├── DISPLAY_GUIDE.md          # Visual display reference
+├── QUICK_START.md            # Quick start guide
+├── PROJECT_SUMMARY.md        # Project overview
+└── REFERENCE_CARD.txt        # Quick reference card
+```
+
+## 🎓 Example Programs
+
+### Sensor Test
+Test all CLUE sensors with detailed output:
+```bash
+cp examples/sensor_test.py /mnt/clue/code.py
+```
+
+### Data Logger
+Log environmental data to CSV format:
+```bash
+cp examples/data_logger.py /mnt/clue/code.py
+```
+
+### Weather Station
+Full weather station with pressure trends and forecasting:
+```bash
+cp examples/weather_station.py /mnt/clue/code.py
+```
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## 📝 License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## 🙏 Acknowledgments
+
+- [Adafruit Industries](https://www.adafruit.com/) for the CLUE hardware and CircuitPython
+- CircuitPython community for excellent documentation and libraries
+
+## 📞 Support
+
+- **Issues**: Please report bugs via [GitHub Issues](https://github.com/jeremycohoe/clue-environmental-monitor/issues)
+- **Documentation**: See the `docs/` directory for comprehensive guides
+- **Adafruit Forums**: [forums.adafruit.com](https://forums.adafruit.com/)
+
+## 🔗 Links
+
+- [Adafruit CLUE Product Page](https://www.adafruit.com/product/4500)
+- [Adafruit CLUE Learn Guide](https://learn.adafruit.com/adafruit-clue)
+- [CircuitPython Documentation](https://docs.circuitpython.org/)
+- [CLUE Library Reference](https://circuitpython.readthedocs.io/projects/clue/)
+
+---
+
+**Made with ❤️ for the Adafruit CLUE community**
+
+**Device**: Adafruit CLUE nRF52840 Express
+**Firmware**: CircuitPython 9.2.4
+**Created**: November 2025
