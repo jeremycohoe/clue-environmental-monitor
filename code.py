@@ -515,9 +515,13 @@ def update_food_safety_display(temp_celsius):
     food_safety_group[5].text = info2_text
     food_safety_group[5].color = text_color
     food_safety_group[6].text = action_text
-    food_safety_group[6].color = text_color# ============================================
+    food_safety_group[6].color = text_color
+
+# ============================================
 # INITIALIZATION
-# ============================================# Setup all display modes
+# ============================================
+
+# Setup all display modes
 setup_main_display()
 setup_trends_display()
 setup_stats_display()
@@ -529,6 +533,7 @@ clue.pixel.fill((0, 0, 255))  # Blue during startup
 
 print("=" * 50)
 print("Adafruit CLUE - Calibrated Environmental Monitor")
+print("WITH FOOD SAFETY MODE - Mode 3")
 print("=" * 50)
 print(f"Temperature offset: {TEMP_OFFSET:+.1f}C")
 print(f"Humidity offset: {HUMIDITY_OFFSET:+.1f}%")
@@ -536,13 +541,18 @@ print(f"Update interval: {UPDATE_INTERVAL}s")
 print(f"Log interval: {LOG_INTERVAL}s")
 print(f"History size: {HISTORY_SIZE} readings")
 print("=" * 50)
+print("Press Button A to cycle modes: Main->Trends->Stats->Food Safety")
+print("Press Button B to toggle Celsius/Fahrenheit")
+print("=" * 50)
 
 # Warm-up period
 print("Warming up sensors (5 seconds)...")
 time.sleep(5)
 
 clue.pixel.fill((0, 255, 0))  # Green when ready
-print("Ready! Starting measurements...\n")
+print("Ready! Starting measurements...")
+print("Current mode: Main Display")
+print("")
 
 # ============================================
 # MAIN LOOP
@@ -584,7 +594,12 @@ while True:
         elif display_mode == 2:
             update_stats_display()
         elif display_mode == 3:
-            update_food_safety_display(display_temp)
+            try:
+                update_food_safety_display(display_temp)
+            except Exception as fs_error:
+                print(f"Food safety display error: {fs_error}")
+                display_mode = 0
+                display.root_group = main_group
 
         # Handle button A (cycle display modes)
         if clue.button_a:
@@ -632,7 +647,7 @@ while True:
 
         # Sleep until next update
         time.sleep(UPDATE_INTERVAL)
-    
+
     except Exception as e:
         print(f"ERROR in main loop: {e}")
         import traceback
