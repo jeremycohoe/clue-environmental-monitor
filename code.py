@@ -30,9 +30,9 @@ from adafruit_display_text import label
 # ============================================
 
 # Temperature calibration offset (in Celsius)
-# Calibrated: 2025-11-01 - Reference 27.5C, Raw sensor averaged to ~30.9C
-# Offset calculated by calibrate_interactive.py
-TEMP_OFFSET = -3.4  # Exact calibration from sensor readings
+# Calibrated: 2025-11-01 - Reference 27.5C
+# Fine-tuned to match reference exactly
+TEMP_OFFSET = -3.5  # Adjusted for 27.5°C display
 
 # Humidity calibration offset (in percentage)
 # Calibrated: 2025-11-01 - Reference 43.3%, CLUE reading 38.1%
