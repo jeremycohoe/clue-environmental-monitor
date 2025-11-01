@@ -6,36 +6,35 @@ A comprehensive environmental monitoring system for the Adafruit CLUE nRF52840 E
 ![CircuitPython](https://img.shields.io/badge/CircuitPython-9.2.4-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
-## 🌟 Features
+## Features
 
-- **📊 Real-time Environmental Monitoring**
-  - Temperature (with calibration for accuracy)
-  - Relative Humidity
-  - Barometric Pressure
-  - Altitude calculation
-
-- **📈 Historical Trending**
-  - 2-hour data history (120 data points)
-  - Rising/falling trend detection
-  - Statistical analysis (min/avg/max)
-
-- **🎨 Three Display Modes**
-  - **Main View**: Current readings with color-coded comfort zones
-  - **Trends View**: Historical trend analysis
-  - **Statistics View**: Min/average/max over 2 hours
-
-- **🎮 Interactive Controls**
+- **Real-time Monitoring**: Temperature, humidity, and pressure readings
+- **Multiple Display Modes**:
+  - Main View: Current readings with large text
+  - Trends View: Historical data tracking
+  - Statistics View: Min/avg/max values
+- **Button Controls**:
   - Button A: Cycle through display modes
-  - Button B: Toggle Celsius/Fahrenheit
+  - Button B: Toggle between Celsius and Fahrenheit
+- **Calibrated Sensors**: Professionally calibrated for accuracy
+- **Color Display**: Easy-to-read 240×240 IPS screen
+- **Status Indicators**: NeoPixel LED shows sensor readings
 
-- **🌈 Visual Feedback**
-  - Color-coded temperature (blue=cold, green=comfortable, orange=hot)
-  - Color-coded humidity (orange=dry, cyan=comfortable, blue=humid)
-  - NeoPixel LED status indicator
+## Applications
 
-- **📝 Data Logging**
-  - Serial console output every 60 seconds
-  - CSV-compatible format for analysis
+### Environmental Monitoring (Current Implementation)
+The CLUE provides accurate environmental data for indoor climate monitoring, server rooms, greenhouses, weather stations, and general home automation.
+
+### Food Safety Device (Design Concept)
+The CLUE can be adapted as a **Leftover Food Safety Device** to monitor refrigerated food storage. See [FOOD_SAFETY_APPLICATION.md](FOOD_SAFETY_APPLICATION.md) for detailed design specifications including:
+- FDA-compliant food safety monitoring
+- Color-coded safety zones (GREEN/YELLOW/RED)
+- 4°C threshold detection with time tracking
+- Multi-day storage monitoring
+- Bluetooth connectivity for remote monitoring
+- Support for multiple sensors
+
+This demonstrates the versatility of the calibrated CLUE platform for both general environmental monitoring and specialized food safety applications.
 
 ## 📸 Display Screenshots
 
@@ -240,6 +239,7 @@ See [CALIBRATION_GUIDE.md](CALIBRATION_GUIDE.md) for detailed instructions.
 - **[CALIBRATION_GUIDE.md](CALIBRATION_GUIDE.md)** - Detailed temperature calibration
 - **[DISPLAY_GUIDE.md](DISPLAY_GUIDE.md)** - Visual guide to all display modes
 - **[PROJECT_SUMMARY.md](PROJECT_SUMMARY.md)** - Project overview and file structure
+- **[FOOD_SAFETY_APPLICATION.md](FOOD_SAFETY_APPLICATION.md)** - FDA-compliant food safety monitoring design
 - **[REFERENCE_CARD.txt](REFERENCE_CARD.txt)** - Quick reference card
 
 ## 🔧 Configuration
