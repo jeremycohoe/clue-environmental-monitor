@@ -376,6 +376,13 @@ def setup_food_safety_display():
     global food_safety_group
     food_safety_group = displayio.Group()
 
+    # Create background sprite ONCE during setup
+    color_bitmap = displayio.Bitmap(240, 240, 1)
+    color_palette = displayio.Palette(1)
+    color_palette[0] = 0xFFFFFF  # Default white
+    bg_sprite = displayio.TileGrid(color_bitmap, pixel_shader=color_palette, x=0, y=0)
+    food_safety_group.append(bg_sprite)
+
     title = label.Label(terminalio.FONT, text="Food Safety", color=0xFFFFFF, scale=1)
     title.x = 60
     title.y = 10
@@ -494,32 +501,23 @@ def update_food_safety_display(temp_celsius):
         info1_text = "Room temp reached"
         info2_text = "Ready to reset"
 
-    food_safety_group[0].color = text_color
-    food_safety_group[1].text = status_text
+    # Update background color by modifying the existing palette
+    food_safety_group[0].pixel_shader[0] = bg_color
+
+    # Update labels (indices 1-6)
     food_safety_group[1].color = text_color
-    food_safety_group[2].text = "Temp: {:.1f}{}C".format(temp_celsius, chr(176))
+    food_safety_group[2].text = status_text
     food_safety_group[2].color = text_color
-    food_safety_group[3].text = info1_text
+    food_safety_group[3].text = "Temp: {:.1f}{}C".format(temp_celsius, chr(176))
     food_safety_group[3].color = text_color
-    food_safety_group[4].text = info2_text
+    food_safety_group[4].text = info1_text
     food_safety_group[4].color = text_color
-    food_safety_group[5].text = action_text
+    food_safety_group[5].text = info2_text
     food_safety_group[5].color = text_color
-
-    if len(food_safety_group) > 6:
-        food_safety_group.pop(6)
-
-    color_bitmap = displayio.Bitmap(240, 240, 1)
-    color_palette = displayio.Palette(1)
-    color_palette[0] = bg_color
-    bg_sprite = displayio.TileGrid(color_bitmap, pixel_shader=color_palette, x=0, y=0)
-    food_safety_group.insert(0, bg_sprite)
-
-# ============================================
+    food_safety_group[6].text = action_text
+    food_safety_group[6].color = text_color# ============================================
 # INITIALIZATION
-# ============================================
-
-# Setup all display modes
+# ============================================# Setup all display modes
 setup_main_display()
 setup_trends_display()
 setup_stats_display()
