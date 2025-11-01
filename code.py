@@ -30,9 +30,9 @@ from adafruit_display_text import label
 # ============================================
 
 # Temperature calibration offset (in Celsius)
-# Recommended: -0.8 to -1.2°C for typical use
-# Adjust based on comparison with a reference thermometer
-TEMP_OFFSET = -1.0
+# Calibrated: 2025-11-01 - Reference 27.5C, Raw sensor averaged to ~30.9C
+# Offset calculated by calibrate_interactive.py
+TEMP_OFFSET = -3.4  # Exact calibration from sensor readings
 
 # Update interval in seconds
 UPDATE_INTERVAL = 2  # Display updates every 2 seconds
