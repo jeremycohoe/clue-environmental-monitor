@@ -37,21 +37,137 @@ A comprehensive environmental monitoring system for the Adafruit CLUE nRF52840 E
   - Serial console output every 60 seconds
   - CSV-compatible format for analysis
 
-## 📸 Screenshots
+## 📸 Display Screenshots
 
-### Main Display
+### Mode 1: Main View - Real-time Readings
+The default display showing current sensor readings with color-coded comfort indicators.
+
 ```
-┌────────────────────────────────┐
-│     CLUE Monitor               │
-│                                │
-│  Temp: 22.5°C    [Green]       │
-│  RH: 45.2%       [Cyan]        │
-│  P: 1013 hPa                   │
-│  Alt: 125 m                    │
-│                                │
-│  Uptime: 15m 30s               │
-│  A:Mode B:C/F                  │
-└────────────────────────────────┘
+╔════════════════════════════════════════╗
+║                                        ║
+║        CLUE Monitor                    ║
+║                                        ║
+║                                        ║
+║   Temp: 22.5°C         🟢 Comfortable  ║
+║                                        ║
+║   RH: 45.2%            🔵 Comfortable  ║
+║                                        ║
+║   P: 1013 hPa                          ║
+║                                        ║
+║   Alt: 125 m                           ║
+║                                        ║
+║                                        ║
+║   Uptime: 15m 30s                      ║
+║                                        ║
+║                                        ║
+║   A:Mode B:C/F                         ║
+║                                        ║
+╚════════════════════════════════════════╝
+```
+
+**Features:**
+- Temperature with color coding (🔵 cold, 🟢 comfortable, 🟠 hot)
+- Humidity with comfort indication
+- Barometric pressure in hPa
+- Calculated altitude in meters
+- Running uptime counter
+
+---
+
+### Mode 2: Trends View - Historical Analysis
+Press Button A once to see trend analysis based on 2 hours of collected data.
+
+```
+╔════════════════════════════════════════╗
+║                                        ║
+║           Trends                       ║
+║                                        ║
+║                                        ║
+║   Temp: Rising +0.3                    ║
+║                                        ║
+║                                        ║
+║   RH: Stable                           ║
+║                                        ║
+║                                        ║
+║   Pres: Falling -1.2                   ║
+║                                        ║
+║                                        ║
+║                                        ║
+║   45 data points                       ║
+║                                        ║
+║                                        ║
+║   A:Mode B:C/F                         ║
+║                                        ║
+╚════════════════════════════════════════╝
+```
+
+**Features:**
+- Temperature trend (rising/falling/stable)
+- Humidity trend analysis
+- Pressure trend (useful for weather prediction)
+- Data collection progress (max 120 points = 2 hours)
+
+---
+
+### Mode 3: Statistics View - Min/Avg/Max
+Press Button A twice to see statistical analysis over the collection period.
+
+```
+╔════════════════════════════════════════╗
+║                                        ║
+║        Statistics                      ║
+║                                        ║
+║                                        ║
+║   Temp: 21.5/22.3/23.1C                ║
+║                                        ║
+║   RH: 42/45/48%                        ║
+║                                        ║
+║   Pres: 1012/1013/1015hPa              ║
+║                                        ║
+║   (min/avg/max)                        ║
+║                                        ║
+║                                        ║
+║   Offset: -1.0C                        ║
+║                                        ║
+║                                        ║
+║   A:Mode B:C/F                         ║
+║                                        ║
+╚════════════════════════════════════════╝
+```
+
+**Features:**
+- Minimum, average, and maximum values
+- Temperature calibration offset displayed
+- All values update in real-time as data is collected
+- Format: min/avg/max for easy reading
+
+---
+
+### Button Controls Visual Guide
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                                                         │
+│    [A]  ← Button A                                      │
+│                                                         │
+│         ┌──────────────────────────┐                    │
+│         │                          │                    │
+│         │   1.3" Color Display     │                    │
+│         │      240 x 240           │                    │
+│         │                          │                    │
+│         └──────────────────────────┘                    │
+│                                                         │
+│    [B]  ← Button B                                      │
+│                                                         │
+│     (●) ← NeoPixel LED (status indicator)               │
+│                                                         │
+└─────────────────────────────────────────────────────────┘
+
+Button A: Cycle through display modes
+  Main → Trends → Statistics → Main (repeats)
+
+Button B: Toggle temperature unit
+  Celsius (°C) ⟷ Fahrenheit (°F)
 ```
 
 ## 🚀 Quick Start
