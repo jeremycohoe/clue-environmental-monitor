@@ -551,80 +551,91 @@ print("Ready! Starting measurements...\n")
 start_time = time.monotonic()
 
 while True:
-    current_time = time.monotonic()
-    uptime_seconds = int(current_time - start_time)
+    try:
+        current_time = time.monotonic()
+        uptime_seconds = int(current_time - start_time)
 
-    # Read sensors
-    calibrated_temp = get_calibrated_temperature()
-    humidity = get_calibrated_humidity()
-    pressure = clue.pressure
-    altitude = clue.altitude
+        # Read sensors
+        calibrated_temp = get_calibrated_temperature()
+        humidity = get_calibrated_humidity()
+        pressure = clue.pressure
+        altitude = clue.altitude
 
-    # Convert temperature if needed
-    display_temp = celsius_to_fahrenheit(calibrated_temp) if use_fahrenheit else calibrated_temp
+        # Convert temperature if needed
+        display_temp = celsius_to_fahrenheit(calibrated_temp) if use_fahrenheit else calibrated_temp
 
-    # Log data at specified interval
-    if current_time - last_log_time >= LOG_INTERVAL:
-        temp_history[history_index] = calibrated_temp
-        humidity_history[history_index] = humidity
-        pressure_history[history_index] = pressure
+        # Log data at specified interval
+        if current_time - last_log_time >= LOG_INTERVAL:
+            temp_history[history_index] = calibrated_temp
+            humidity_history[history_index] = humidity
+            pressure_history[history_index] = pressure
 
-        history_index = (history_index + 1) % HISTORY_SIZE
-        last_log_time = current_time
+            history_index = (history_index + 1) % HISTORY_SIZE
+            last_log_time = current_time
 
-        # Print to serial console
-        print(f"[{format_uptime(uptime_seconds)}] T: {calibrated_temp:.1f}C, RH: {humidity:.1f}%, P: {pressure:.0f}hPa, Alt: {altitude:.0f}m")
+            # Print to serial console
+            print(f"[{format_uptime(uptime_seconds)}] T: {calibrated_temp:.1f}C, RH: {humidity:.1f}%, P: {pressure:.0f}hPa, Alt: {altitude:.0f}m")
 
-    # Update current display mode
-    if display_mode == 0:
-        update_main_display(display_temp, humidity, pressure, altitude)
-    elif display_mode == 1:
-        update_trends_display()
-    elif display_mode == 2:
-        update_stats_display()
-    elif display_mode == 3:
-        update_food_safety_display(display_temp)
+        # Update current display mode
+        if display_mode == 0:
+            update_main_display(display_temp, humidity, pressure, altitude)
+        elif display_mode == 1:
+            update_trends_display()
+        elif display_mode == 2:
+            update_stats_display()
+        elif display_mode == 3:
+            update_food_safety_display(display_temp)
 
-    # Handle button A (cycle display modes)
-    if clue.button_a:
-        if not button_a_pressed:
-            button_a_pressed = True
-            display_mode = (display_mode + 1) % 4
+        # Handle button A (cycle display modes)
+        if clue.button_a:
+            print("Button A detected!")
+            if not button_a_pressed:
+                button_a_pressed = True
+                display_mode = (display_mode + 1) % 4
+                print(f"Switching to mode {display_mode}")
 
-            if display_mode == 0:
-                display.root_group = main_group
-                print("Display mode: Main")
-            elif display_mode == 1:
-                display.root_group = trends_group
-                print("Display mode: Trends")
-            elif display_mode == 2:
-                display.root_group = stats_group
-                print("Display mode: Statistics")
-            elif display_mode == 3:
-                display.root_group = food_safety_group
-                print("Display mode: Food Safety")
+                if display_mode == 0:
+                    display.root_group = main_group
+                    print("Display mode: Main")
+                elif display_mode == 1:
+                    display.root_group = trends_group
+                    print("Display mode: Trends")
+                elif display_mode == 2:
+                    display.root_group = stats_group
+                    print("Display mode: Statistics")
+                elif display_mode == 3:
+                    display.root_group = food_safety_group
+                    print("Display mode: Food Safety")
 
-            # Brief flash to acknowledge button press
-            clue.pixel.fill((255, 255, 0))
-            time.sleep(0.1)
-            clue.pixel.fill((0, 255, 0))
-    else:
-        button_a_pressed = False
+                # Brief flash to acknowledge button press
+                clue.pixel.fill((255, 255, 0))
+                time.sleep(0.1)
+                clue.pixel.fill((0, 255, 0))
+        else:
+            button_a_pressed = False
 
-    # Handle button B (toggle Celsius/Fahrenheit)
-    if clue.button_b:
-        if not button_b_pressed:
-            button_b_pressed = True
-            use_fahrenheit = not use_fahrenheit
-            unit = "Fahrenheit" if use_fahrenheit else "Celsius"
-            print(f"Temperature unit: {unit}")
+        # Handle button B (toggle Celsius/Fahrenheit)
+        if clue.button_b:
+            print("Button B detected!")
+            if not button_b_pressed:
+                button_b_pressed = True
+                use_fahrenheit = not use_fahrenheit
+                unit = "Fahrenheit" if use_fahrenheit else "Celsius"
+                print(f"Temperature unit: {unit}")
 
-            # Brief flash to acknowledge button press
-            clue.pixel.fill((255, 0, 255))
-            time.sleep(0.1)
-            clue.pixel.fill((0, 255, 0))
-    else:
-        button_b_pressed = False
+                # Brief flash to acknowledge button press
+                clue.pixel.fill((255, 0, 255))
+                time.sleep(0.1)
+                clue.pixel.fill((0, 255, 0))
+        else:
+            button_b_pressed = False
 
-    # Sleep until next update
-    time.sleep(UPDATE_INTERVAL)
+        # Sleep until next update
+        time.sleep(UPDATE_INTERVAL)
+    
+    except Exception as e:
+        print(f"ERROR in main loop: {e}")
+        import traceback
+        traceback.print_exception(type(e), e, e.__traceback__)
+        time.sleep(1)
+
