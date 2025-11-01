@@ -26,7 +26,7 @@ The CLUE monitors temperature in refrigerators to track food safety and alert us
 - **Display Info:** "SAFE" message with timestamp
 
 #### YELLOW Zone - Warning
-- **Display:** YELLOW screen  
+- **Display:** YELLOW screen
 - **Condition:** Temperature is Above 4° C but below room temperature for **Less than 2 hours**
 - **Action:** Warning - monitor closely
 - **Display Info:** Show the temperature and how long it stayed above 4° C before temperature dropped below 4° again and returned to GREEN

@@ -67,7 +67,17 @@ history_index = 0
 last_log_time = 0
 uptime_seconds = 0
 use_fahrenheit = False
-display_mode = 0  # 0: Main, 1: Trends, 2: Stats
+display_mode = 0  # 0: Main, 1: Trends, 2: Stats, 3: Food Safety
+
+# Food safety mode tracking
+food_safety_state = 0  # 0: Initial, 1: Safe, 2: Warning, 3: Discard, 4: Charge
+fridge_entry_time = None
+danger_zone_start = None
+total_danger_time = 0
+FOOD_SAFE_TEMP = 4.0  # Celsius
+ROOM_TEMP = 21.0  # Celsius
+DANGER_ZONE_LIMIT = 7200  # 2 hours in seconds
+MAX_STORAGE_DAYS = 4
 
 # Button state tracking
 button_a_pressed = False
@@ -84,6 +94,7 @@ display.brightness = 0.7  # Adjust brightness (0.0 to 1.0)
 main_group = displayio.Group()
 trends_group = displayio.Group()
 stats_group = displayio.Group()
+food_safety_group = displayio.Group()
 
 # Start with main display
 display.root_group = main_group
@@ -360,6 +371,150 @@ def update_stats_display():
         stats_group[2].text = f"RH: {humidity_min:.0f}/{humidity_avg:.0f}/{humidity_max:.0f}%"
         stats_group[3].text = f"P: {pressure_min:.0f}/{pressure_avg:.0f}/{pressure_max:.0f}hPa"
 
+def setup_food_safety_display():
+    """Setup the food safety display mode."""
+    global food_safety_group
+    food_safety_group = displayio.Group()
+
+    title = label.Label(terminalio.FONT, text="Food Safety", color=0xFFFFFF, scale=1)
+    title.x = 60
+    title.y = 10
+    food_safety_group.append(title)
+
+    status_label = label.Label(terminalio.FONT, text="", color=0xFFFFFF, scale=2)
+    status_label.x = 40
+    status_label.y = 50
+    food_safety_group.append(status_label)
+
+    temp_label = label.Label(terminalio.FONT, text="", color=0xFFFFFF, scale=2)
+    temp_label.x = 20
+    temp_label.y = 100
+    food_safety_group.append(temp_label)
+
+    info1_label = label.Label(terminalio.FONT, text="", color=0xFFFFFF, scale=1)
+    info1_label.x = 20
+    info1_label.y = 140
+    food_safety_group.append(info1_label)
+
+    info2_label = label.Label(terminalio.FONT, text="", color=0xFFFFFF, scale=1)
+    info2_label.x = 20
+    info2_label.y = 170
+    food_safety_group.append(info2_label)
+
+    action_label = label.Label(terminalio.FONT, text="", color=0xFFFFFF, scale=1)
+    action_label.x = 20
+    action_label.y = 210
+    food_safety_group.append(action_label)
+
+def update_food_safety_display(temp_celsius):
+    """Update food safety display with state machine logic."""
+    global food_safety_state, fridge_entry_time, danger_zone_start, total_danger_time
+
+    current_time = time.monotonic()
+
+    bg_color = 0xFFFFFF
+    text_color = 0x000000
+    status_text = ""
+    info1_text = ""
+    info2_text = ""
+    action_text = ""
+
+    if food_safety_state == 0:
+        if temp_celsius <= FOOD_SAFE_TEMP:
+            food_safety_state = 1
+            fridge_entry_time = current_time
+        bg_color = 0xFFFFFF
+        text_color = 0x000000
+        status_text = "READY"
+        info1_text = "Place in fridge"
+        info2_text = "Starts at 4{}C".format(chr(176))
+
+    elif food_safety_state == 1:
+        time_in_fridge = current_time - fridge_entry_time
+        days = int(time_in_fridge / 86400)
+        hours = int((time_in_fridge % 86400) / 3600)
+
+        if time_in_fridge > (MAX_STORAGE_DAYS * 86400):
+            food_safety_state = 3
+        elif temp_celsius > FOOD_SAFE_TEMP:
+            food_safety_state = 2
+            danger_zone_start = current_time
+        elif temp_celsius >= ROOM_TEMP:
+            food_safety_state = 4
+
+        bg_color = 0x00FF00
+        text_color = 0x000000
+        status_text = "SAFE"
+        info1_text = "In fridge: {}d {}h".format(days, hours)
+        days_left = MAX_STORAGE_DAYS - days
+        info2_text = "Safe for: {}d".format(days_left) if days_left >= 0 else "OVER 4 DAYS!"
+
+    elif food_safety_state == 2:
+        danger_time = current_time - danger_zone_start + total_danger_time
+
+        if danger_time >= DANGER_ZONE_LIMIT:
+            food_safety_state = 3
+        elif temp_celsius <= FOOD_SAFE_TEMP:
+            total_danger_time = danger_time
+            danger_zone_start = None
+            food_safety_state = 1
+        elif temp_celsius >= ROOM_TEMP:
+            food_safety_state = 4
+
+        mins = int(danger_time / 60)
+        secs = int(danger_time % 60)
+
+        bg_color = 0xFFFF00
+        text_color = 0x000000
+        status_text = "WARNING"
+        info1_text = "Above 4{}C: {}m {}s".format(chr(176), mins, secs)
+        info2_text = "Limit: 2 hours"
+        action_text = "Return to fridge"
+
+    elif food_safety_state == 3:
+        if temp_celsius >= ROOM_TEMP:
+            food_safety_state = 4
+
+        bg_color = 0xFF0000
+        text_color = 0xFFFFFF
+        status_text = "DISCARD"
+        info1_text = "NOT SAFE TO EAT"
+        info2_text = "DISPOSE OF FOOD"
+
+    elif food_safety_state == 4:
+        if temp_celsius <= FOOD_SAFE_TEMP:
+            food_safety_state = 0
+            fridge_entry_time = None
+            danger_zone_start = None
+            total_danger_time = 0
+
+        bg_color = 0x0000FF
+        text_color = 0xFFFFFF
+        status_text = "CHARGE ME"
+        info1_text = "Room temp reached"
+        info2_text = "Ready to reset"
+
+    food_safety_group[0].color = text_color
+    food_safety_group[1].text = status_text
+    food_safety_group[1].color = text_color
+    food_safety_group[2].text = "Temp: {:.1f}{}C".format(temp_celsius, chr(176))
+    food_safety_group[2].color = text_color
+    food_safety_group[3].text = info1_text
+    food_safety_group[3].color = text_color
+    food_safety_group[4].text = info2_text
+    food_safety_group[4].color = text_color
+    food_safety_group[5].text = action_text
+    food_safety_group[5].color = text_color
+
+    if len(food_safety_group) > 6:
+        food_safety_group.pop(6)
+
+    color_bitmap = displayio.Bitmap(240, 240, 1)
+    color_palette = displayio.Palette(1)
+    color_palette[0] = bg_color
+    bg_sprite = displayio.TileGrid(color_bitmap, pixel_shader=color_palette, x=0, y=0)
+    food_safety_group.insert(0, bg_sprite)
+
 # ============================================
 # INITIALIZATION
 # ============================================
@@ -368,6 +523,7 @@ def update_stats_display():
 setup_main_display()
 setup_trends_display()
 setup_stats_display()
+setup_food_safety_display()
 
 # Set NeoPixel to indicate startup
 clue.pixel.brightness = 0.1
@@ -428,12 +584,14 @@ while True:
         update_trends_display()
     elif display_mode == 2:
         update_stats_display()
+    elif display_mode == 3:
+        update_food_safety_display(display_temp)
 
     # Handle button A (cycle display modes)
     if clue.button_a:
         if not button_a_pressed:
             button_a_pressed = True
-            display_mode = (display_mode + 1) % 3
+            display_mode = (display_mode + 1) % 4
 
             if display_mode == 0:
                 display.root_group = main_group
@@ -444,6 +602,9 @@ while True:
             elif display_mode == 2:
                 display.root_group = stats_group
                 print("Display mode: Statistics")
+            elif display_mode == 3:
+                display.root_group = food_safety_group
+                print("Display mode: Food Safety")
 
             # Brief flash to acknowledge button press
             clue.pixel.fill((255, 255, 0))

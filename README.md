@@ -10,31 +10,43 @@ A comprehensive environmental monitoring system for the Adafruit CLUE nRF52840 E
 
 - **Real-time Monitoring**: Temperature, humidity, and pressure readings
 - **Multiple Display Modes**:
-  - Main View: Current readings with large text
-  - Trends View: Historical data tracking
-  - Statistics View: Min/avg/max values
+  - Mode 0: Main View - Current readings with large text
+  - Mode 1: Trends View - Historical data tracking
+  - Mode 2: Statistics View - Min/avg/max values
+  - Mode 3: Food Safety - FDA-compliant leftover monitoring
 - **Button Controls**:
-  - Button A: Cycle through display modes
+  - Button A: Cycle through display modes (4 modes)
   - Button B: Toggle between Celsius and Fahrenheit
-- **Calibrated Sensors**: Professionally calibrated for accuracy
+- **Calibrated Sensors**: Professionally calibrated for accuracy (-3.5°C offset, +5.2% humidity)
 - **Color Display**: Easy-to-read 240×240 IPS screen
 - **Status Indicators**: NeoPixel LED shows sensor readings
 
 ## Applications
 
-### Environmental Monitoring (Current Implementation)
-The CLUE provides accurate environmental data for indoor climate monitoring, server rooms, greenhouses, weather stations, and general home automation.
+### Environmental Monitoring (Main Implementation)
+The CLUE provides accurate environmental data for indoor climate monitoring, server rooms, greenhouses, weather stations, and general home automation. Press **Button A** to cycle through Main, Trends, and Statistics views.
 
-### Food Safety Device (Design Concept)
-The CLUE can be adapted as a **Leftover Food Safety Device** to monitor refrigerated food storage. See [FOOD_SAFETY_APPLICATION.md](FOOD_SAFETY_APPLICATION.md) for detailed design specifications including:
-- FDA-compliant food safety monitoring
-- Color-coded safety zones (GREEN/YELLOW/RED)
-- 4°C threshold detection with time tracking
-- Multi-day storage monitoring
-- Bluetooth connectivity for remote monitoring
-- Support for multiple sensors
+### Food Safety Device (Implemented as Mode 3)
+The CLUE includes a complete **FDA-compliant Leftover Food Safety Monitor** as Mode 3!
 
-This demonstrates the versatility of the calibrated CLUE platform for both general environmental monitoring and specialized food safety applications.
+**Quick Start:**
+1. Press **Button A** three times from the main display to enter Food Safety mode
+2. Place CLUE with food container in refrigerator
+3. Monitoring begins automatically when temp reaches 4°C (GREEN display)
+4. Watch for alerts: YELLOW (warning) or RED (discard food)
+
+**Features:**
+- ✅ Automatic 4°C threshold detection
+- ✅ Color-coded safety zones (WHITE/GREEN/YELLOW/RED/BLUE)
+- ✅ 2-hour danger zone tracking
+- ✅ 4-day maximum storage monitoring
+- ✅ Auto-reset when returning to room temperature
+
+**Available in two ways:**
+1. **Integrated** (default `code.py`): Mode 3 in the environmental monitor - press Button A to access
+2. **Standalone** (`food_safety.py`): Dedicated food safety device - rename to `code.py` for exclusive use
+
+See [FOOD_SAFETY_APPLICATION.md](FOOD_SAFETY_APPLICATION.md) for complete design specifications and [FOOD_SAFETY_USAGE.md](FOOD_SAFETY_USAGE.md) for usage instructions.
 
 ## 📸 Display Screenshots
 
@@ -236,6 +248,24 @@ See [CALIBRATION_GUIDE.md](CALIBRATION_GUIDE.md) for detailed instructions.
 
 - **[README.md](README.md)** - Complete hardware capabilities and sensor specifications
 - **[QUICK_START.md](QUICK_START.md)** - Quick reference and common tasks
+- **[CALIBRATION_GUIDE.md](CALIBRATION_GUIDE.md)** - Detailed temperature calibration
+- **[DISPLAY_GUIDE.md](DISPLAY_GUIDE.md)** - Visual guide to all display modes
+- **[PROJECT_SUMMARY.md](PROJECT_SUMMARY.md)** - Project overview and file structure
+- **[FOOD_SAFETY_APPLICATION.md](FOOD_SAFETY_APPLICATION.md)** - FDA-compliant food safety design specs
+- **[FOOD_SAFETY_USAGE.md](FOOD_SAFETY_USAGE.md)** - Food safety monitor usage guide
+- **[REFERENCE_CARD.txt](REFERENCE_CARD.txt)** - Quick reference card
+
+## 📁 Project Files
+
+### Main Programs
+- **`code.py`** - Integrated environmental monitor with 4 display modes (includes food safety)
+- **`food_safety.py`** - Standalone FDA-compliant food safety monitor
+
+### Examples
+- **`calibrate_interactive.py`** - Interactive calibration tool
+- **`examples/sensor_test.py`** - Test all CLUE sensors
+- **`examples/data_logger.py`** - CSV data logging
+- **`examples/weather_station.py`** - Weather forecasting
 - **[CALIBRATION_GUIDE.md](CALIBRATION_GUIDE.md)** - Detailed temperature calibration
 - **[DISPLAY_GUIDE.md](DISPLAY_GUIDE.md)** - Visual guide to all display modes
 - **[PROJECT_SUMMARY.md](PROJECT_SUMMARY.md)** - Project overview and file structure
