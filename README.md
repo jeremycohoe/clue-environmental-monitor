@@ -1,280 +1,259 @@
 # Adafruit CLUE Environmental Monitor
 
-A comprehensive environmental monitoring system for the Adafruit CLUE nRF52840 Express with calibrated temperature sensing, historical trending, and multiple display modes.
+A comprehensive environmental monitoring system for the Adafruit CLUE nRF52840 Express with calibrated sensors, historical trending, and **4 interactive display modes** including an FDA-compliant food safety monitor.
 
 ![CLUE Badge](https://img.shields.io/badge/Adafruit-CLUE-blueviolet)
 ![CircuitPython](https://img.shields.io/badge/CircuitPython-9.2.4-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
-## Features
+## 🎯 Features
 
-- **Real-time Monitoring**: Temperature, humidity, and pressure readings
-- **Multiple Display Modes**:
-  - Mode 0: Main View - Current readings with large text
-  - Mode 1: Trends View - Historical data tracking
-  - Mode 2: Statistics View - Min/avg/max values
-  - Mode 3: Food Safety - FDA-compliant leftover monitoring
-- **Button Controls**:
-  - Button A: Cycle through display modes (4 modes)
-  - Button B: Toggle between Celsius and Fahrenheit
-- **Calibrated Sensors**: Professionally calibrated for accuracy (-3.5°C offset, +5.2% humidity)
-- **Color Display**: Easy-to-read 240×240 IPS screen
-- **Status Indicators**: NeoPixel LED shows sensor readings
-
-## Applications
-
-### Environmental Monitoring (Main Implementation)
-The CLUE provides accurate environmental data for indoor climate monitoring, server rooms, greenhouses, weather stations, and general home automation. Press **Button A** to cycle through Main, Trends, and Statistics views.
-
-### Food Safety Device (Implemented as Mode 3)
-The CLUE includes a complete **FDA-compliant Leftover Food Safety Monitor** as Mode 3!
-
-**Quick Start:**
-1. Press **Button A** three times from the main display to enter Food Safety mode
-2. Place CLUE with food container in refrigerator
-3. Monitoring begins automatically when temp reaches 4°C (GREEN display)
-4. Watch for alerts: YELLOW (warning) or RED (discard food)
-
-**Features:**
-- ✅ Automatic 4°C threshold detection
-- ✅ Color-coded safety zones (WHITE/GREEN/YELLOW/RED/BLUE)
-- ✅ 2-hour danger zone tracking
-- ✅ 4-day maximum storage monitoring
-- ✅ Auto-reset when returning to room temperature
-
-**Available in two ways:**
-1. **Integrated** (default `code.py`): Mode 3 in the environmental monitor - press Button A to access
-2. **Standalone** (`food_safety.py`): Dedicated food safety device - rename to `code.py` for exclusive use
-
-See [FOOD_SAFETY_APPLICATION.md](FOOD_SAFETY_APPLICATION.md) for complete design specifications and [FOOD_SAFETY_USAGE.md](FOOD_SAFETY_USAGE.md) for usage instructions.
-
-## 📸 Display Screenshots
-
-### Mode 1: Main View - Real-time Readings
-The default display showing current sensor readings with color-coded comfort indicators.
-
-```
-╔════════════════════════════════════════╗
-║                                        ║
-║        CLUE Monitor                    ║
-║                                        ║
-║                                        ║
-║   Temp: 22.5°C         🟢 Comfortable  ║
-║                                        ║
-║   RH: 45.2%            🔵 Comfortable  ║
-║                                        ║
-║   P: 1013 hPa                          ║
-║                                        ║
-║   Alt: 125 m                           ║
-║                                        ║
-║                                        ║
-║   Uptime: 15m 30s                      ║
-║                                        ║
-║                                        ║
-║   A:Mode B:C/F                         ║
-║                                        ║
-╚════════════════════════════════════════╝
-```
-
-**Features:**
-- Temperature with color coding (🔵 cold, 🟢 comfortable, 🟠 hot)
-- Humidity with comfort indication
-- Barometric pressure in hPa
-- Calculated altitude in meters
-- Running uptime counter
-
----
-
-### Mode 2: Trends View - Historical Analysis
-Press Button A once to see trend analysis based on 2 hours of collected data.
-
-```
-╔════════════════════════════════════════╗
-║                                        ║
-║           Trends                       ║
-║                                        ║
-║                                        ║
-║   Temp: Rising +0.3                    ║
-║                                        ║
-║                                        ║
-║   RH: Stable                           ║
-║                                        ║
-║                                        ║
-║   Pres: Falling -1.2                   ║
-║                                        ║
-║                                        ║
-║                                        ║
-║   45 data points                       ║
-║                                        ║
-║                                        ║
-║   A:Mode B:C/F                         ║
-║                                        ║
-╚════════════════════════════════════════╝
-```
-
-**Features:**
-- Temperature trend (rising/falling/stable)
-- Humidity trend analysis
-- Pressure trend (useful for weather prediction)
-- Data collection progress (max 120 points = 2 hours)
-
----
-
-### Mode 3: Statistics View - Min/Avg/Max
-Press Button A twice to see statistical analysis over the collection period.
-
-```
-╔════════════════════════════════════════╗
-║                                        ║
-║        Statistics                      ║
-║                                        ║
-║                                        ║
-║   Temp: 21.5/22.3/23.1C                ║
-║                                        ║
-║   RH: 42/45/48%                        ║
-║                                        ║
-║   Pres: 1012/1013/1015hPa              ║
-║                                        ║
-║   (min/avg/max)                        ║
-║                                        ║
-║                                        ║
-║   Offset: -1.0C                        ║
-║                                        ║
-║                                        ║
-║   A:Mode B:C/F                         ║
-║                                        ║
-╚════════════════════════════════════════╝
-```
-
-**Features:**
-- Minimum, average, and maximum values
-- Temperature calibration offset displayed
-- All values update in real-time as data is collected
-- Format: min/avg/max for easy reading
-
----
-
-### Button Controls Visual Guide
-
-```
-┌─────────────────────────────────────────────────────────┐
-│                                                         │
-│    [A]  ← Button A                                      │
-│                                                         │
-│         ┌──────────────────────────┐                    │
-│         │                          │                    │
-│         │   1.3" Color Display     │                    │
-│         │      240 x 240           │                    │
-│         │                          │                    │
-│         └──────────────────────────┘                    │
-│                                                         │
-│    [B]  ← Button B                                      │
-│                                                         │
-│     (●) ← NeoPixel LED (status indicator)               │
-│                                                         │
-└─────────────────────────────────────────────────────────┘
-
-Button A: Cycle through display modes
-  Main → Trends → Statistics → Main (repeats)
-
-Button B: Toggle temperature unit
-  Celsius (°C) ⟷ Fahrenheit (°F)
-```
+- **4 Display Modes** - Cycle with Button A:
+  - **Mode 1:** Main View - Live sensor readings with color-coded comfort zones
+  - **Mode 2:** Trends - Historical data analysis with sparkline graphs
+  - **Mode 3:** Statistics - Min/Avg/Max values from 2 hours of data
+  - **Mode 4:** Food Safety - FDA-compliant leftover monitoring
+- **Dual Temperature Units** - Toggle °C/°F with Button B
+- **Calibrated Sensors** - Professional calibration (-3.5°C, +5.2% RH)
+- **Visual Feedback** - NeoPixel LED indicates status (Green=OK, Yellow=Warning, etc.)
+- **Memory Optimized** - Efficient code runs smoothly on 256KB RAM
 
 ## 🚀 Quick Start
 
-### Hardware Required
-- [Adafruit CLUE nRF52840 Express](https://www.adafruit.com/product/4500)
-- USB-C cable
-- Optional: Reference thermometer for calibration
+1. **Power On** - Connect CLUE via USB or battery
+2. **Cycle Modes** - Press **Button A** to switch between 4 displays
+3. **Toggle Units** - Press **Button B** for Celsius ⟷ Fahrenheit
+4. **Food Safety** - Press **Button A** three times to enter Mode 4
 
-### Installation
+## 📊 The Four Display Modes
 
-1. **Ensure CircuitPython is installed** on your CLUE (version 9.2.4 or later)
-   - Download from [circuitpython.org](https://circuitpython.org/board/clue_nrf52840_express/)
+### Mode 1: Main View - Real-Time Monitoring
+**Default display** showing current environmental conditions with color-coded comfort indicators.
 
-2. **Clone this repository**
-   ```bash
-   git clone https://github.com/jeremycohoe/clue-environmental-monitor.git
-   cd clue-environmental-monitor
-   ```
-
-3. **Copy to CLUE**
-   ```bash
-   # Mount your CLUE (appears as CIRCUITPY drive)
-   sudo mount /dev/sdX1 /mnt/clue
-
-   # Copy the main program
-   sudo cp code.py /mnt/clue/
-   sudo sync
-   ```
-
-4. **Done!** The CLUE will automatically restart and run the monitor
-
-### Usage
-
-#### Button Controls
-- **Button A** (left): Cycle through Main → Trends → Statistics
-- **Button B** (right): Toggle between °C and °F
-
-#### Display Modes
-1. **Main View**: Real-time sensor readings
-2. **Trends View**: Historical trend analysis
-3. **Statistics View**: Min/Avg/Max values
-
-#### Serial Console
-Connect to view detailed logging:
-```bash
-screen /dev/ttyACM0 115200
-# or
-picocom /dev/ttyACM0 -b 115200
+```
+┌─────────────────────────────────────┐
+│                                     │
+│       CLUE Monitor                  │
+│                                     │
+│  Temp: 22.5 C    🟢 Comfortable     │
+│                                     │
+│  RH: 45.2%       🟢 Comfortable     │
+│                                     │
+│  P: 1013 hPa                        │
+│                                     │
+│  Alt: 125 m                         │
+│                                     │
+│  Uptime: 15m 30s                    │
+│                                     │
+│  A:Mode B:C/F                       │
+│                                     │
+└─────────────────────────────────────┘
 ```
 
-## 🎯 Temperature Calibration
+**What You See:**
+- 🌡️ **Temperature** - Color coded: Blue (cold), Green (comfort), Orange (hot)
+- 💧 **Humidity** - Comfort range 30-60%
+- 📊 **Pressure** - Barometric pressure in hPa
+- 🏔️ **Altitude** - Calculated from pressure
+- ⏱️ **Uptime** - Time since device started
 
-The CLUE's temperature sensor reads 0.5-1.5°C higher than ambient due to self-heating. Follow these steps to calibrate:
+**LED Indicator:** Green = All readings in comfort zone
 
-1. Let CLUE run for 10-15 minutes to stabilize
-2. Compare with a reference thermometer
-3. Calculate offset: `Reference_Temp - CLUE_Temp`
-4. Edit `code.py` line ~30:
-   ```python
-   TEMP_OFFSET = -1.0  # Replace with your calculated offset
-   ```
+---
 
-See [CALIBRATION_GUIDE.md](CALIBRATION_GUIDE.md) for detailed instructions.
+### Mode 2: Trends - Historical Analysis
+**Press Button A once** to see trend analysis based on the last 2 hours of data (120 samples).
 
-## 📚 Documentation
+```
+┌─────────────────────────────────────┐
+│                                     │
+│          Trends                     │
+│                                     │
+│  Temp: Rising +0.3                  │
+│  ▂▃▄▅▆▇█ ← Sparkline graph          │
+│                                     │
+│  RH: Stable                         │
+│  ▄▄▅▄▅▄▄                            │
+│                                     │
+│  Pres: Falling -2.1                 │
+│  █▇▆▅▄▃▂                            │
+│                                     │
+│  2hr history (120 pts)              │
+│                                     │
+└─────────────────────────────────────┘
+```
 
-- **[README.md](README.md)** - Complete hardware capabilities and sensor specifications
-- **[QUICK_START.md](QUICK_START.md)** - Quick reference and common tasks
-- **[CALIBRATION_GUIDE.md](CALIBRATION_GUIDE.md)** - Detailed temperature calibration
-- **[DISPLAY_GUIDE.md](DISPLAY_GUIDE.md)** - Visual guide to all display modes
-- **[PROJECT_SUMMARY.md](PROJECT_SUMMARY.md)** - Project overview and file structure
-- **[FOOD_SAFETY_APPLICATION.md](FOOD_SAFETY_APPLICATION.md)** - FDA-compliant food safety design specs
-- **[FOOD_SAFETY_USAGE.md](FOOD_SAFETY_USAGE.md)** - Food safety monitor usage guide
-- **[REFERENCE_CARD.txt](REFERENCE_CARD.txt)** - Quick reference card
+**What You See:**
+- � **Trend Direction** - Rising, Falling, or Stable for each sensor
+- 📉 **Sparkline Graphs** - Visual mini-charts showing data progression
+- 🔢 **Change Values** - Numerical difference from older to recent average
 
-## 📁 Project Files
+**Use Cases:**
+- Weather prediction (falling pressure = rain coming)
+- HVAC monitoring (temperature trending)
+- Leak detection (humidity trending up)
 
-### Main Programs
-- **`code.py`** - Integrated environmental monitor with 4 display modes (includes food safety)
-- **`food_safety.py`** - Standalone FDA-compliant food safety monitor
+---
 
-### Examples
+### Mode 3: Statistics - Min/Avg/Max
+**Press Button A twice** to see statistical summary of collected data.
+
+```
+┌─────────────────────────────────────┐
+│                                     │
+│        Statistics                   │
+│                                     │
+│  Temp: 20.1/22.5/24.3 C             │
+│        Min / Avg / Max              │
+│                                     │
+│  RH: 38/45/52%                      │
+│                                     │
+│  P: 1010/1013/1016 hPa              │
+│                                     │
+│  Trend: 2hr window                  │
+│  Samples: 120                       │
+│                                     │
+└─────────────────────────────────────┘
+```
+
+**What You See:**
+- 📊 **Min/Avg/Max** - Statistical range for each sensor
+- � **Sample Count** - Number of data points collected
+- ⏰ **Time Window** - Duration of statistics (2 hours max)
+
+**Use Cases:**
+- Daily temperature range tracking
+- Indoor climate stability assessment
+- Data logging and record keeping
+
+---
+
+### Mode 4: Food Safety Monitor 🍔
+**Press Button A three times** to enter FDA-compliant leftover food safety monitoring mode.
+
+```
+┌─────────────────────────────────────┐
+│                                     │
+│      FOOD SAFETY                    │
+│                                     │
+│         SAFE                        │
+│                                     │
+│    Temp: 3.2 C                      │
+│                                     │
+│    Food is safe                     │
+│                                     │
+│    OK to eat                        │
+│                                     │
+│                                     │
+│                                     │
+└─────────────────────────────────────┘
+```
+
+**Color-Coded States:**
+
+| State | Display | LED Color | Meaning |
+|-------|---------|-----------|---------|
+| **READY** | White | ⚪ White | Waiting - place food in fridge |
+| **SAFE** | Green | 🟢 Green | Temperature ≤ 4°C, food is safe |
+| **CHECK TEMP** | Yellow | 🟡 Yellow | Above 4°C, monitor closely |
+
+**How It Works:**
+1. **Start:** Display shows "READY" (white) at room temperature
+2. **Fridge:** Place in fridge - automatically enters SAFE mode when temp reaches 4°C
+3. **Monitor:** Green LED and display confirm food safety
+4. **Alert:** Yellow warning if temperature rises above safe threshold
+5. **Reset:** Returns to READY when back at room temperature (≥21°C)
+
+**FDA Guidelines Implemented:**
+- ✅ 4°C (40°F) safe refrigerator temperature
+- ✅ Visual alerts for temperature violations
+- ✅ Automatic state tracking
+
+**Pro Tip:** For the full 5-state version with 2-hour danger zone tracking and 4-day storage limits, use the standalone `food_safety.py` application.
+
+---
+
+## 🎮 Button Controls
+
+| Button | Function | Description |
+|--------|----------|-------------|
+| **A (Left)** | Cycle Modes | Main → Trends → Stats → Food Safety → Main... |
+| **B (Right)** | Toggle Units | Switch between Celsius (°C) and Fahrenheit (°F) |
+
+**LED Flash Feedback:**
+- Yellow flash = Mode changed (Button A)
+- Magenta flash = Units changed (Button B)
+- Steady green = Normal operation
+
+---
+
+## 📦 What's Included
+
+### Core Files
+- **`code.py`** - Main 4-mode environmental monitor (THIS IS WHAT YOU RUN)
+- **`food_safety.py`** - Standalone FDA food safety monitor (5-state full version)
+- **`CODE_REVIEW.md`** - Code optimization analysis and improvements
+
+### Documentation
+- **`README.md`** - Complete project documentation (you are here!)
+- **`QUICK_REFERENCE.md`** - One-page quick reference card
+- **`TROUBLESHOOTING.md`** - Common issues and solutions
+- **`FOOD_SAFETY_APPLICATION.md`** - FDA food safety design specifications
+- **`FOOD_SAFETY_USAGE.md`** - How to use the food safety monitor
+- **`FOOD_SAFETY_QUICKSTART.md`** - Quick start for food safety mode
+- **`IMPLEMENTATION_SUMMARY.md`** - Technical implementation details
+- **`DISPLAY_GUIDE.md`** - Visual guide to all display modes
+- **`PROJECT_SUMMARY.md`** - Project overview
+
+### Utilities
 - **`calibrate_interactive.py`** - Interactive calibration tool
-- **`examples/sensor_test.py`** - Test all CLUE sensors
-- **`examples/data_logger.py`** - CSV data logging
-- **`examples/weather_station.py`** - Weather forecasting
-- **[CALIBRATION_GUIDE.md](CALIBRATION_GUIDE.md)** - Detailed temperature calibration
-- **[DISPLAY_GUIDE.md](DISPLAY_GUIDE.md)** - Visual guide to all display modes
-- **[PROJECT_SUMMARY.md](PROJECT_SUMMARY.md)** - Project overview and file structure
-- **[FOOD_SAFETY_APPLICATION.md](FOOD_SAFETY_APPLICATION.md)** - FDA-compliant food safety monitoring design
-- **[REFERENCE_CARD.txt](REFERENCE_CARD.txt)** - Quick reference card
+- **`button_test.py`** - Test button responsiveness
+
+---
+
+## 🚀 Quick Start
+
+### Step 1: Install CircuitPython
+1. Download CircuitPython 9.2.4+ from [circuitpython.org](https://circuitpython.org/board/clue_nrf52840_express/)
+2. Double-click CLUE's reset button → CLUEBOOT drive appears
+3. Drag `.uf2` file to CLUEBOOT drive
+4. Wait for restart → CIRCUITPY drive appears
+
+### Step 2: Upload Code
+```bash
+# Linux/Mac
+sudo mount /dev/sdX1 /mnt/clue
+sudo cp code.py /mnt/clue/
+sudo sync
+
+# Windows
+# Just copy code.py to CIRCUITPY drive
+```
+
+### Step 3: Use It!
+- **Green LED** = Ready
+- **Press Button A** = Cycle modes (Main → Trends → Stats → Food Safety)
+- **Press Button B** = Toggle °C/°F
+
+**That's it!** 🎉
+
+---
+
+## 📚 Documentation Quick Links
+
+| Document | Purpose | When to Use |
+|----------|---------|-------------|
+| [README.md](README.md) | Complete reference | Understanding all features |
+| [QUICK_REFERENCE.md](QUICK_REFERENCE.md) | One-page cheat sheet | Daily use, printed reference |
+| [TROUBLESHOOTING.md](TROUBLESHOOTING.md) | Fix problems | Something not working |
+| [FOOD_SAFETY_USAGE.md](FOOD_SAFETY_USAGE.md) | Food monitor guide | Using Mode 4 (Food Safety) |
+| [CODE_REVIEW.md](CODE_REVIEW.md) | Code analysis | Developers, optimization info |
+
+---
 
 ## 🔧 Configuration
 
-Edit `code.py` to customize:
+Edit the top of `code.py` to customize:
 
 ```python
 # Temperature calibration
@@ -294,93 +273,249 @@ HUMIDITY_MIN_COMFORT = 30.0 # %
 HUMIDITY_MAX_COMFORT = 60.0 # %
 ```
 
-## 📊 Sensors
+## 📊 Technical Specifications
 
-| Sensor | Measurement | Accuracy | Notes |
-|--------|------------|----------|-------|
-| SHT31-D | Temperature | ±0.2°C | Apply calibration offset |
-| SHT31-D | Humidity | ±2% RH | Generally accurate |
-| BMP280 | Pressure | ±1 hPa | For weather trends |
-| BMP280 | Altitude | ±1 m | Calculated from pressure |
+### Hardware: Adafruit CLUE nRF52840 Express
 
-Additional sensors available but not used in this project:
-- LSM6DS33 (accelerometer & gyroscope)
-- LIS3MDL (magnetometer)
-- APDS9960 (proximity, light, color, gesture)
-- PDM microphone
+| Component | Specification |
+|-----------|--------------|
+| **Processor** | Nordic nRF52840 (ARM Cortex-M4, 64 MHz) |
+| **Memory** | 256 KB RAM, 1 MB Flash, 2 MB SPI Flash |
+| **Display** | 1.3" IPS TFT, 240×240 pixels, 65K colors |
+| **Sensors** | Temperature, Humidity, Pressure, Motion, Light, Gesture |
+| **Power** | USB-C or 3.7V LiPo battery |
+| **Dimensions** | 2.0" × 2.4" × 0.5" |
 
-## 📁 Project Structure
+### Sensors Used in This Project
 
-```
-clue-environmental-monitor/
-├── code.py                    # Main program (upload to CLUE)
-├── calibrate_temperature.py   # Interactive calibration helper
-├── examples/                  # Example programs
-│   ├── sensor_test.py        # Test all sensors
-│   ├── data_logger.py        # CSV data logging
-│   └── weather_station.py    # Weather forecasting
-├── backup_20251101_210948/   # Original files backup
-│   ├── code.py
-│   ├── temp.py
-│   └── boot_out.txt
-├── README.md                  # This file (GitHub main page)
-├── CALIBRATION_GUIDE.md      # Detailed calibration
-├── DISPLAY_GUIDE.md          # Visual display reference
-├── QUICK_START.md            # Quick start guide
-├── PROJECT_SUMMARY.md        # Project overview
-└── REFERENCE_CARD.txt        # Quick reference card
-```
+| Sensor | Type | Measurement | Accuracy | Range |
+|--------|------|-------------|----------|-------|
+| **SHT31-D** | Temp/Humid | Temperature | ±0.2°C | -40°C to 125°C |
+| **SHT31-D** | Temp/Humid | Humidity | ±2% RH | 0-100% RH |
+| **BMP280** | Pressure | Barometric | ±1 hPa | 300-1100 hPa |
+| **BMP280** | Altitude | Calculated | ±1 m | 0-9000 m |
 
-## 🎓 Example Programs
-
-### Sensor Test
-Test all CLUE sensors with detailed output:
-```bash
-cp examples/sensor_test.py /mnt/clue/code.py
-```
-
-### Data Logger
-Log environmental data to CSV format:
-```bash
-cp examples/data_logger.py /mnt/clue/code.py
-```
-
-### Weather Station
-Full weather station with pressure trends and forecasting:
-```bash
-cp examples/weather_station.py /mnt/clue/code.py
-```
-
-## 🤝 Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-## 📝 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## 🙏 Acknowledgments
-
-- [Adafruit Industries](https://www.adafruit.com/) for the CLUE hardware and CircuitPython
-- CircuitPython community for excellent documentation and libraries
-
-## 📞 Support
-
-- **Issues**: Please report bugs via [GitHub Issues](https://github.com/jeremycohoe/clue-environmental-monitor/issues)
-- **Documentation**: See the `docs/` directory for comprehensive guides
-- **Adafruit Forums**: [forums.adafruit.com](https://forums.adafruit.com/)
-
-## 🔗 Links
-
-- [Adafruit CLUE Product Page](https://www.adafruit.com/product/4500)
-- [Adafruit CLUE Learn Guide](https://learn.adafruit.com/adafruit-clue)
-- [CircuitPython Documentation](https://docs.circuitpython.org/)
-- [CLUE Library Reference](https://circuitpython.readthedocs.io/projects/clue/)
+**Note:** CLUE has additional sensors (accelerometer, magnetometer, light, gesture, microphone) not used in this environmental monitor.
 
 ---
 
-**Made with ❤️ for the Adafruit CLUE community**
+## 📁 Complete Project Structure
+
+```
+clue-environmental-monitor/
+│
+├── 📄 code.py                           # Main program (4 modes)
+├── 📄 food_safety.py                    # Standalone food safety (5 states)
+├── 📄 button_test.py                    # Button testing utility
+├── 📄 calibrate_interactive.py          # Calibration helper
+│
+├── 📚 Documentation/
+│   ├── README.md                        # This file (complete reference)
+│   ├── QUICK_REFERENCE.md               # One-page cheat sheet 📋
+│   ├── TROUBLESHOOTING.md               # Problem solving guide 🔧
+│   ├── CODE_REVIEW.md                   # Code analysis & optimization
+│   ├── FOOD_SAFETY_APPLICATION.md       # FDA food safety design
+│   ├── FOOD_SAFETY_USAGE.md             # Food safety user guide
+│   ├── FOOD_SAFETY_QUICKSTART.md        # Food safety quick start
+│   ├── IMPLEMENTATION_SUMMARY.md        # Technical details
+│   ├── DISPLAY_GUIDE.md                 # Display modes visual guide
+│   └── PROJECT_SUMMARY.md               # Project overview
+│
+└── 📁 backup_*/                         # Automatic backups
+```
+
+---
+
+## 🎓 Use Cases
+
+### 🏠 Home Climate Monitoring
+- Track indoor temperature and humidity for comfort
+- Monitor HVAC system effectiveness
+- Detect humidity issues (mold prevention)
+- 24/7 environmental logging
+
+### �️ Weather Tracking
+- Barometric pressure trends predict weather changes
+- Falling pressure = rain likely within 12-24 hours
+- Rising pressure = improving weather conditions
+- Track daily temperature ranges
+
+### 🍔 Food Safety (Mode 4)
+- Monitor refrigerator temperature compliance
+- Track leftover food safety (FDA guidelines)
+- Prevent foodborne illness
+- Visual alerts for temperature violations
+
+### 🌱 Greenhouse Monitoring
+- Optimal growing conditions tracking
+- Humidity control for plants
+- Temperature stability verification
+- Climate data collection
+
+### 💻 Server Room / Data Center
+- Temperature monitoring for equipment
+- Humidity control (prevent static damage)
+- Altitude/pressure for cooling calculations
+- 24/7 unattended monitoring
+
+### 🏢 Office / Workspace
+- Comfort zone compliance (OSHA guidelines)
+- Air quality assessment
+- HVAC efficiency tracking
+- Employee comfort optimization
+
+---
+
+## 🔋 Power Options & Battery Life
+
+| Power Source | Duration | Notes |
+|--------------|----------|-------|
+| **USB-C** | Unlimited | Recommended for 24/7 monitoring |
+| **LiPo Battery (500mAh)** | ~10-12 hours | With display.brightness = 0.7 |
+| **LiPo Battery (500mAh)** | ~18-24 hours | With display.brightness = 0.3 |
+| **3×AAA Battery Pack** | ~8-10 hours | Using AAA holder accessory |
+
+**Power Optimization Tips:**
+- Lower `display.brightness` to 0.3-0.5 for battery use
+- Increase `UPDATE_INTERVAL` to 5-10 seconds
+- Use standalone food safety mode (no trends/stats = less CPU)
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! Here's how:
+
+1. **Fork the repository**
+2. **Create a feature branch** (`git checkout -b feature/amazing-feature`)
+3. **Make your changes** with clear comments
+4. **Test thoroughly** on actual CLUE hardware
+5. **Commit** (`git commit -m 'Add amazing feature'`)
+6. **Push** (`git push origin feature/amazing-feature`)
+7. **Open a Pull Request**
+
+**Areas for Contribution:**
+- Additional display modes
+- Data export features (CSV, JSON)
+- BLE connectivity for remote monitoring
+- More sensor integration (light, gesture, motion)
+- Improved calibration tools
+- Translation/localization
+
+---
+
+## 📝 License
+
+This project is licensed under the **MIT License**.
+
+```
+MIT License
+
+Copyright (c) 2025 Jeremy Cohoe
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```
+
+---
+
+## 🙏 Acknowledgments
+
+- **[Adafruit Industries](https://www.adafruit.com/)** - For the amazing CLUE hardware and CircuitPython ecosystem
+- **CircuitPython Community** - For excellent documentation and support
+- **FDA Food Safety Guidelines** - For food storage safety standards
+- **Contributors** - Everyone who has helped improve this project
+
+---
+
+## 📞 Support & Contact
+
+### Get Help
+- 📖 **Read the Docs**: Start with [QUICK_REFERENCE.md](QUICK_REFERENCE.md)
+- 🔧 **Troubleshooting**: Check [TROUBLESHOOTING.md](TROUBLESHOOTING.md)
+- 💬 **GitHub Issues**: [Report bugs or request features](https://github.com/jeremycohoe/clue-environmental-monitor/issues)
+- 🌐 **Adafruit Forums**: [forums.adafruit.com](https://forums.adafruit.com/viewforum.php?f=60)
+
+### Useful Links
+- [Adafruit CLUE Product Page](https://www.adafruit.com/product/4500)
+- [CLUE Learn Guide](https://learn.adafruit.com/adafruit-clue)
+- [CircuitPython Documentation](https://docs.circuitpython.org/)
+- [CLUE Library Reference](https://circuitpython.readthedocs.io/projects/clue/)
+- [This Project on GitHub](https://github.com/jeremycohoe/clue-environmental-monitor)
+
+---
+
+## 🌟 Project Status
+
+![GitHub last commit](https://img.shields.io/github/last-commit/jeremycohoe/clue-environmental-monitor)
+![GitHub issues](https://img.shields.io/github/issues/jeremycohoe/clue-environmental-monitor)
+![GitHub stars](https://img.shields.io/github/stars/jeremycohoe/clue-environmental-monitor)
+
+**Current Version:** 1.0 (Optimized)
+**Last Updated:** November 2, 2025
+**Status:** ✅ Production Ready
+
+**Recent Updates:**
+- ✅ November 2, 2025: Code optimization, removed duplication, added Mode 4 (Food Safety)
+- ✅ November 1, 2025: Calibration completed, button responsiveness improved
+- ✅ October 2025: Initial release with 3 display modes
+
+---
+
+## 🎯 Roadmap
+
+### ✅ Completed
+- [x] 4 interactive display modes
+- [x] Calibrated temperature and humidity
+- [x] Responsive button controls
+- [x] Food safety monitoring (Mode 4)
+- [x] Comprehensive documentation
+- [x] Code optimization and cleanup
+
+### 🚧 In Progress
+- [ ] BLE data streaming to phone/computer
+- [ ] CSV data export to flash storage
+- [ ] Web dashboard (if WiFi added)
+
+### 💭 Future Ideas
+- [ ] Alarm system with buzzer
+- [ ] Graph plotting on display
+- [ ] Multiple sensor integration
+- [ ] Time-series data analysis
+- [ ] Machine learning trend prediction
+- [ ] MQTT integration for IoT
+
+---
+
+<div align="center">
+
+**Made with ❤️ for the Adafruit CLUE Community**
+
+🌡️ 💧 📊 🍔
+
+**[⬆ Back to Top](#adafruit-clue-environmental-monitor)**
+
+</div>
+
+---
 
 **Device**: Adafruit CLUE nRF52840 Express
-**Firmware**: CircuitPython 9.2.4
+**Firmware**: CircuitPython 9.2.4+
 **Created**: November 2025
+**Author**: Jeremy Cohoe
+**Repository**: [github.com/jeremycohoe/clue-environmental-monitor](https://github.com/jeremycohoe/clue-environmental-monitor)

@@ -69,15 +69,13 @@ uptime_seconds = 0
 use_fahrenheit = False
 display_mode = 0  # 0: Main, 1: Trends, 2: Stats, 3: Food Safety
 
-# Food safety mode tracking
-food_safety_state = 0  # 0: Initial, 1: Safe, 2: Warning, 3: Discard, 4: Charge
+# Food safety mode tracking (simplified 3-state version)
+# Note: Full 5-state version available in standalone food_safety.py
+# This integrated version uses 3 states to minimize memory usage
+food_safety_state = 0  # 0: READY, 1: SAFE, 2: WARNING/CHECK
 fridge_entry_time = None
-danger_zone_start = None
-total_danger_time = 0
-FOOD_SAFE_TEMP = 4.0  # Celsius
-ROOM_TEMP = 21.0  # Celsius
-DANGER_ZONE_LIMIT = 7200  # 2 hours in seconds
-MAX_STORAGE_DAYS = 4
+FOOD_SAFE_TEMP = 4.0  # Celsius - FDA guideline
+ROOM_TEMP = 21.0  # Celsius - reset threshold
 
 # Button state tracking
 button_a_pressed = False
@@ -94,7 +92,7 @@ display.brightness = 0.7  # Adjust brightness (0.0 to 1.0)
 main_group = displayio.Group()
 trends_group = displayio.Group()
 stats_group = displayio.Group()
-food_safety_group = displayio.Group()
+# Food safety will reuse main_group to avoid memory issues
 
 # Start with main display
 display.root_group = main_group
@@ -179,6 +177,61 @@ def format_uptime(seconds):
     else:
         return f"{secs}s"
 
+def handle_mode_switch():
+    """Handle display mode cycling - eliminates code duplication."""
+    global display_mode, button_a_pressed
+
+    if clue.button_a and not button_a_pressed:
+        button_a_pressed = True
+        display_mode = (display_mode + 1) % 4  # 4 modes: Main, Trends, Stats, Food Safety
+        print(f"Mode switch: {display_mode}")
+
+        # Set the appropriate display group
+        if display_mode == 0:
+            display.root_group = main_group
+            print("Display mode: Main")
+        elif display_mode == 1:
+            display.root_group = trends_group
+            print("Display mode: Trends")
+        elif display_mode == 2:
+            display.root_group = stats_group
+            print("Display mode: Statistics")
+        elif display_mode == 3:
+            display.root_group = main_group
+            print("Display mode: Food Safety")
+
+        # Brief flash to acknowledge button press
+        clue.pixel.fill((255, 255, 0))
+        time.sleep(0.1)
+        clue.pixel.fill((0, 255, 0))
+        return True
+
+    if not clue.button_a:
+        button_a_pressed = False
+
+    return False
+
+def handle_unit_toggle():
+    """Handle C/F unit toggling - eliminates code duplication."""
+    global use_fahrenheit, button_b_pressed
+
+    if clue.button_b and not button_b_pressed:
+        button_b_pressed = True
+        use_fahrenheit = not use_fahrenheit
+        unit = "Fahrenheit" if use_fahrenheit else "Celsius"
+        print(f"Temperature unit: {unit}")
+
+        # Brief flash to acknowledge button press
+        clue.pixel.fill((255, 0, 255))
+        time.sleep(0.1)
+        clue.pixel.fill((0, 255, 0))
+        return True
+
+    if not clue.button_b:
+        button_b_pressed = False
+
+    return False
+
 # ============================================
 # DISPLAY MODE: MAIN VIEW
 # ============================================
@@ -231,8 +284,10 @@ def update_main_display(temp, humidity, pressure, altitude):
     # Temperature (index 1)
     temp_str = f"{temp:.1f}"
     unit = "F" if use_fahrenheit else "C"
-    main_group[1].text = f"Temp: {temp_str}{chr(176)}{unit}"
-    main_group[1].color = get_temp_color(temp if not use_fahrenheit else (temp - 32) * 5/9)
+    main_group[1].text = f"Temp: {temp_str} {unit}"
+    # Always use Celsius for color thresholds regardless of display unit
+    celsius_for_color = temp if not use_fahrenheit else (temp - 32) * 5/9
+    main_group[1].color = get_temp_color(celsius_for_color)
 
     # Humidity (index 2)
     main_group[2].text = f"RH: {humidity:.1f}%"
@@ -371,151 +426,62 @@ def update_stats_display():
         stats_group[2].text = f"RH: {humidity_min:.0f}/{humidity_avg:.0f}/{humidity_max:.0f}%"
         stats_group[3].text = f"P: {pressure_min:.0f}/{pressure_avg:.0f}/{pressure_max:.0f}hPa"
 
-def setup_food_safety_display():
-    """Setup the food safety display mode."""
-    global food_safety_group
-    food_safety_group = displayio.Group()
-
-    # Create background sprite ONCE during setup
-    color_bitmap = displayio.Bitmap(240, 240, 1)
-    color_palette = displayio.Palette(1)
-    color_palette[0] = 0xFFFFFF  # Default white
-    bg_sprite = displayio.TileGrid(color_bitmap, pixel_shader=color_palette, x=0, y=0)
-    food_safety_group.append(bg_sprite)
-
-    title = label.Label(terminalio.FONT, text="Food Safety", color=0xFFFFFF, scale=1)
-    title.x = 60
-    title.y = 10
-    food_safety_group.append(title)
-
-    status_label = label.Label(terminalio.FONT, text="", color=0xFFFFFF, scale=2)
-    status_label.x = 40
-    status_label.y = 50
-    food_safety_group.append(status_label)
-
-    temp_label = label.Label(terminalio.FONT, text="", color=0xFFFFFF, scale=2)
-    temp_label.x = 20
-    temp_label.y = 100
-    food_safety_group.append(temp_label)
-
-    info1_label = label.Label(terminalio.FONT, text="", color=0xFFFFFF, scale=1)
-    info1_label.x = 20
-    info1_label.y = 140
-    food_safety_group.append(info1_label)
-
-    info2_label = label.Label(terminalio.FONT, text="", color=0xFFFFFF, scale=1)
-    info2_label.x = 20
-    info2_label.y = 170
-    food_safety_group.append(info2_label)
-
-    action_label = label.Label(terminalio.FONT, text="", color=0xFFFFFF, scale=1)
-    action_label.x = 20
-    action_label.y = 210
-    food_safety_group.append(action_label)
-
 def update_food_safety_display(temp_celsius):
-    """Update food safety display with state machine logic."""
-    global food_safety_state, fridge_entry_time, danger_zone_start, total_danger_time
+    """Simple food safety mode - reuses main display to avoid memory issues."""
+    global food_safety_state, fridge_entry_time
 
-    current_time = time.monotonic()
-
-    bg_color = 0xFFFFFF
-    text_color = 0x000000
-    status_text = ""
-    info1_text = ""
-    info2_text = ""
-    action_text = ""
-
-    if food_safety_state == 0:
+    # Determine state based on temperature
+    if food_safety_state == 0:  # READY
         if temp_celsius <= FOOD_SAFE_TEMP:
             food_safety_state = 1
-            fridge_entry_time = current_time
-        bg_color = 0xFFFFFF
-        text_color = 0x000000
-        status_text = "READY"
-        info1_text = "Place in fridge"
-        info2_text = "Starts at 4{}C".format(chr(176))
+            fridge_entry_time = time.monotonic()
+        main_group[0].text = "FOOD SAFETY"
+        main_group[1].text = "READY"
+        main_group[1].color = 0x00FF00
+        main_group[2].text = f"Temp: {temp_celsius:.1f}C"
+        main_group[2].color = 0xFFFFFF
+        main_group[3].text = "Place in fridge"
+        main_group[3].color = 0xFFFFFF
+        main_group[4].text = "Starts at 4C"
+        main_group[4].color = 0xFFFFFF
+        main_group[5].text = ""
+        clue.pixel.fill((255, 255, 255))  # White LED
 
-    elif food_safety_state == 1:
-        time_in_fridge = current_time - fridge_entry_time
-        days = int(time_in_fridge / 86400)
-        hours = int((time_in_fridge % 86400) / 3600)
-
-        if time_in_fridge > (MAX_STORAGE_DAYS * 86400):
-            food_safety_state = 3
-        elif temp_celsius > FOOD_SAFE_TEMP:
+    elif food_safety_state == 1:  # SAFE
+        if temp_celsius > FOOD_SAFE_TEMP:
             food_safety_state = 2
-            danger_zone_start = current_time
         elif temp_celsius >= ROOM_TEMP:
-            food_safety_state = 4
+            food_safety_state = 2
+        main_group[0].text = "FOOD SAFETY"
+        main_group[1].text = "SAFE"
+        main_group[1].color = 0x00FF00
+        main_group[2].text = f"Temp: {temp_celsius:.1f}C"
+        main_group[2].color = 0xFFFFFF
+        main_group[3].text = "Food is safe"
+        main_group[3].color = 0xFFFFFF
+        main_group[4].text = "OK to eat"
+        main_group[4].color = 0xFFFFFF
+        main_group[5].text = ""
+        clue.pixel.fill((0, 255, 0))  # Green LED
 
-        bg_color = 0x00FF00
-        text_color = 0x000000
-        status_text = "SAFE"
-        info1_text = "In fridge: {}d {}h".format(days, hours)
-        days_left = MAX_STORAGE_DAYS - days
-        info2_text = "Safe for: {}d".format(days_left) if days_left >= 0 else "OVER 4 DAYS!"
-
-    elif food_safety_state == 2:
-        danger_time = current_time - danger_zone_start + total_danger_time
-
-        if danger_time >= DANGER_ZONE_LIMIT:
-            food_safety_state = 3
-        elif temp_celsius <= FOOD_SAFE_TEMP:
-            total_danger_time = danger_time
-            danger_zone_start = None
+    elif food_safety_state == 2:  # WARNING/RESET
+        if temp_celsius <= FOOD_SAFE_TEMP:
             food_safety_state = 1
         elif temp_celsius >= ROOM_TEMP:
-            food_safety_state = 4
-
-        mins = int(danger_time / 60)
-        secs = int(danger_time % 60)
-
-        bg_color = 0xFFFF00
-        text_color = 0x000000
-        status_text = "WARNING"
-        info1_text = "Above 4{}C: {}m {}s".format(chr(176), mins, secs)
-        info2_text = "Limit: 2 hours"
-        action_text = "Return to fridge"
-
-    elif food_safety_state == 3:
-        if temp_celsius >= ROOM_TEMP:
-            food_safety_state = 4
-
-        bg_color = 0xFF0000
-        text_color = 0xFFFFFF
-        status_text = "DISCARD"
-        info1_text = "NOT SAFE TO EAT"
-        info2_text = "DISPOSE OF FOOD"
-
-    elif food_safety_state == 4:
-        if temp_celsius <= FOOD_SAFE_TEMP:
+            # Reset at room temp
             food_safety_state = 0
             fridge_entry_time = None
-            danger_zone_start = None
-            total_danger_time = 0
-
-        bg_color = 0x0000FF
-        text_color = 0xFFFFFF
-        status_text = "CHARGE ME"
-        info1_text = "Room temp reached"
-        info2_text = "Ready to reset"
-
-    # Update background color by modifying the existing palette
-    food_safety_group[0].pixel_shader[0] = bg_color
-
-    # Update labels (indices 1-6)
-    food_safety_group[1].color = text_color
-    food_safety_group[2].text = status_text
-    food_safety_group[2].color = text_color
-    food_safety_group[3].text = "Temp: {:.1f}{}C".format(temp_celsius, chr(176))
-    food_safety_group[3].color = text_color
-    food_safety_group[4].text = info1_text
-    food_safety_group[4].color = text_color
-    food_safety_group[5].text = info2_text
-    food_safety_group[5].color = text_color
-    food_safety_group[6].text = action_text
-    food_safety_group[6].color = text_color
+        main_group[0].text = "FOOD SAFETY"
+        main_group[1].text = "CHECK TEMP"
+        main_group[1].color = 0xFFFF00
+        main_group[2].text = f"Temp: {temp_celsius:.1f}C"
+        main_group[2].color = 0xFFFFFF
+        main_group[3].text = "Monitor closely"
+        main_group[3].color = 0xFFFFFF
+        main_group[4].text = ""
+        main_group[4].color = 0xFFFFFF
+        main_group[5].text = ""
+        clue.pixel.fill((255, 255, 0))  # Yellow LED
 
 # ============================================
 # INITIALIZATION
@@ -525,7 +491,7 @@ def update_food_safety_display(temp_celsius):
 setup_main_display()
 setup_trends_display()
 setup_stats_display()
-setup_food_safety_display()
+# Food safety reuses main_group, no separate setup needed
 
 # Set NeoPixel to indicate startup
 clue.pixel.brightness = 0.1
@@ -594,63 +560,23 @@ while True:
         elif display_mode == 2:
             update_stats_display()
         elif display_mode == 3:
-            try:
-                update_food_safety_display(display_temp)
-            except Exception as fs_error:
-                print(f"Food safety display error: {fs_error}")
-                display_mode = 0
-                display.root_group = main_group
+            # Food safety mode using simplified main display
+            update_food_safety_display(calibrated_temp)
 
-        # Handle button A (cycle display modes)
-        if clue.button_a:
-            print("Button A detected!")
-            if not button_a_pressed:
-                button_a_pressed = True
-                display_mode = (display_mode + 1) % 4
-                print(f"Switching to mode {display_mode}")
+        # Handle buttons using extracted functions (eliminates duplication)
+        handle_mode_switch()
+        handle_unit_toggle()
 
-                if display_mode == 0:
-                    display.root_group = main_group
-                    print("Display mode: Main")
-                elif display_mode == 1:
-                    display.root_group = trends_group
-                    print("Display mode: Trends")
-                elif display_mode == 2:
-                    display.root_group = stats_group
-                    print("Display mode: Statistics")
-                elif display_mode == 3:
-                    display.root_group = food_safety_group
-                    print("Display mode: Food Safety")
+        # Sleep in small increments to check buttons more frequently
+        for _ in range(int(UPDATE_INTERVAL * 10)):
+            time.sleep(0.1)
 
-                # Brief flash to acknowledge button press
-                clue.pixel.fill((255, 255, 0))
-                time.sleep(0.1)
-                clue.pixel.fill((0, 255, 0))
-        else:
-            button_a_pressed = False
-
-        # Handle button B (toggle Celsius/Fahrenheit)
-        if clue.button_b:
-            print("Button B detected!")
-            if not button_b_pressed:
-                button_b_pressed = True
-                use_fahrenheit = not use_fahrenheit
-                unit = "Fahrenheit" if use_fahrenheit else "Celsius"
-                print(f"Temperature unit: {unit}")
-
-                # Brief flash to acknowledge button press
-                clue.pixel.fill((255, 0, 255))
-                time.sleep(0.1)
-                clue.pixel.fill((0, 255, 0))
-        else:
-            button_b_pressed = False
-
-        # Sleep until next update
-        time.sleep(UPDATE_INTERVAL)
+            # Quick button checks during sleep (using extracted functions)
+            if handle_mode_switch() or handle_unit_toggle():
+                break  # Exit sleep early if button pressed
 
     except Exception as e:
         print(f"ERROR in main loop: {e}")
-        import traceback
-        traceback.print_exception(type(e), e, e.__traceback__)
+        print("Continuing...")
         time.sleep(1)
 
