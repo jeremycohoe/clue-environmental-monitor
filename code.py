@@ -320,22 +320,37 @@ def setup_trends_display():
 
     # Temperature trend
     temp_trend_label = label.Label(terminalio.FONT, text="Temp: --", color=0xFFFFFF,
-                                   x=5, y=40, scale=2)
+                                   x=5, y=40, scale=1)
     trends_group.append(temp_trend_label)
+
+    # Temperature sparkline (will be text-based)
+    temp_spark_label = label.Label(terminalio.FONT, text="", color=0x00FF00,
+                                   x=5, y=55, scale=1)
+    trends_group.append(temp_spark_label)
 
     # Humidity trend
     humidity_trend_label = label.Label(terminalio.FONT, text="RH: --", color=0xFFFFFF,
-                                       x=5, y=80, scale=2)
+                                       x=5, y=85, scale=1)
     trends_group.append(humidity_trend_label)
+
+    # Humidity sparkline
+    humidity_spark_label = label.Label(terminalio.FONT, text="", color=0x00FF00,
+                                       x=5, y=100, scale=1)
+    trends_group.append(humidity_spark_label)
 
     # Pressure trend
     pressure_trend_label = label.Label(terminalio.FONT, text="Pres: --", color=0xFFFFFF,
-                                       x=5, y=120, scale=2)
+                                       x=5, y=130, scale=1)
     trends_group.append(pressure_trend_label)
 
+    # Pressure sparkline
+    pressure_spark_label = label.Label(terminalio.FONT, text="", color=0x00FF00,
+                                       x=5, y=145, scale=1)
+    trends_group.append(pressure_spark_label)
+
     # Data points info
-    info_label = label.Label(terminalio.FONT, text="-- data points", color=0x888888,
-                            x=5, y=170, scale=1)
+    info_label = label.Label(terminalio.FONT, text="2hr history (-- pts)", color=0x888888,
+                            x=5, y=180, scale=1)
     trends_group.append(info_label)
 
     # Help text
@@ -345,18 +360,54 @@ def setup_trends_display():
 
     return trends_group
 
+def create_sparkline(data, width=30):
+    """Create a text-based sparkline from data array using ASCII."""
+    # Use simple ASCII characters that terminalio.FONT supports
+    bars = " .-:=+*#@"  # Low to high
+
+    valid_data = [d for d in data if d is not None]
+    if len(valid_data) < 2:
+        return "insufficient data"
+
+    # Take last 'width' points
+    recent_data = valid_data[-width:]
+
+    # Normalize to 0-8 range for bar characters
+    min_val = min(recent_data)
+    max_val = max(recent_data)
+
+    if max_val == min_val:
+        return bars[4] * len(recent_data)  # Middle bar if flat
+
+    sparkline = ""
+    for value in recent_data:
+        normalized = (value - min_val) / (max_val - min_val)
+        bar_index = int(normalized * 8)
+        if bar_index >= len(bars):
+            bar_index = len(bars) - 1
+        sparkline += bars[bar_index]
+
+    return sparkline
+
 def update_trends_display():
-    """Update the trends display."""
+    """Update the trends display with sparklines."""
     temp_trend = calculate_trend(temp_history)
     humidity_trend = calculate_trend(humidity_history)
     pressure_trend = calculate_trend(pressure_history)
 
     valid_points = sum(1 for x in temp_history if x is not None)
 
+    # Update trend text
     trends_group[1].text = f"Temp: {temp_trend}"
-    trends_group[2].text = f"RH: {humidity_trend}"
-    trends_group[3].text = f"Pres: {pressure_trend}"
-    trends_group[4].text = f"{valid_points} data points"
+    trends_group[2].text = create_sparkline(temp_history, 35)  # Sparkline
+
+    trends_group[3].text = f"RH: {humidity_trend}"
+    trends_group[4].text = create_sparkline(humidity_history, 35)  # Sparkline
+
+    trends_group[5].text = f"Pres: {pressure_trend}"
+    trends_group[6].text = create_sparkline(pressure_history, 35)  # Sparkline
+
+    trends_group[7].text = f"2hr history ({valid_points} pts)"
 
 # ============================================
 # DISPLAY MODE: STATISTICS VIEW

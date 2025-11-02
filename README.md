@@ -70,18 +70,26 @@ A comprehensive environmental monitoring system for the Adafruit CLUE nRF52840 E
 │          Trends                     │
 │                                     │
 │  Temp: Rising +0.3                  │
-│  ▂▃▄▅▆▇█ ← Sparkline graph          │
+│  .-:=+*#@@@  ← ASCII sparkline      │
 │                                     │
 │  RH: Stable                         │
-│  ▄▄▅▄▅▄▄                            │
+│  ===++=+==+                         │
 │                                     │
 │  Pres: Falling -2.1                 │
-│  █▇▆▅▄▃▂                            │
+│  @##*+==:--.                        │
 │                                     │
 │  2hr history (120 pts)              │
 │                                     │
 └─────────────────────────────────────┘
 ```
+
+**What You See:**
+- 📈 **Trend Direction** - Rising, Falling, or Stable for each sensor
+- 📉 **ASCII Sparklines** - Visual mini-charts using characters ` .-:=+*#@`
+  - ` ` (space) and `.` = Lowest values
+  - `-` `:` `=` = Low to medium values
+  - `+` `*` `#` `@` = Medium to highest values
+- 🔢 **Change Values** - Numerical difference from older to recent average
 
 **What You See:**
 - � **Trend Direction** - Rising, Falling, or Stable for each sensor
