@@ -64,6 +64,8 @@ A comprehensive environmental monitoring system for the Adafruit CLUE nRF52840 E
 ### Mode 2: Trends - Historical Analysis
 **Press Button A once** to see trend analysis based on the last 2 hours of data (120 samples).
 
+![Trends Display](imgs/Trends.JPG)
+
 ```
 ┌─────────────────────────────────────┐
 │                                     │
@@ -106,6 +108,8 @@ A comprehensive environmental monitoring system for the Adafruit CLUE nRF52840 E
 ### Mode 3: Statistics - Min/Avg/Max
 **Press Button A twice** to see statistical summary of collected data.
 
+![Statistics Display](imgs/Stats.JPG)
+
 ```
 ┌─────────────────────────────────────┐
 │                                     │
@@ -138,6 +142,15 @@ A comprehensive environmental monitoring system for the Adafruit CLUE nRF52840 E
 
 ### Mode 4: Food Safety Monitor 🍔
 **Press Button A three times** to enter FDA-compliant leftover food safety monitoring mode.
+
+#### READY State
+![Food Safety - READY](imgs/FS-Ready.JPG)
+
+#### SAFE State
+![Food Safety - SAFE](imgs/FS-F.JPG)
+
+#### CHECK TEMP State
+![Food Safety - CHECK](imgs/FS-C.JPG)
 
 ```
 ┌─────────────────────────────────────┐
